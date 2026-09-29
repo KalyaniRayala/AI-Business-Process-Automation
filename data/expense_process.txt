@@ -1,0 +1,21 @@
+Expense Reimbursement Process
+
+1. Employee submits an expense claim along with the receipt.
+
+2. The finance team receives the expense claim.
+
+3. Finance checks whether the receipt is valid and contains the required information.
+
+4. Finance checks the company expense reimbursement policy.
+
+5. Finance verifies the employee's identity and department.
+
+6. Finance checks whether sufficient department budget is available.
+
+7. Expenses above $500 require manager approval.
+
+8. Expenses above $5,000 require finance approval.
+
+9. Approved expenses are recorded in the accounting system.
+
+10. The employee receives an email notification about the final decision.
