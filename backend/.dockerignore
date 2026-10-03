@@ -1,0 +1,23 @@
+# Secrets: never build these into an image.
+.env
+.env.*
+!.env.example
+
+# Local state that belongs on a volume, not in the image.
+chroma_db/
+data/business.db
+evals/cassettes/*.json
+
+# Caches and build artefacts.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Not needed at runtime.
+.git/
+.gitignore
+Dockerfile
+.dockerignore

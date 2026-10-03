@@ -1,0 +1,58 @@
+{
+  "suite": "retrieval",
+  "description": "Recall of the expense process text. Each case asks a question an employee would ask and names the sentence an answer needs; the snippets come from data/expense_process.txt, so this only passes once that document has been ingested.",
+  "cases": [
+    {
+      "id": "manager-approval-threshold",
+      "query": "Which expenses need manager approval?",
+      "top_k": 3,
+      "must_retrieve": ["Expenses above $500 require manager approval"]
+    },
+    {
+      "id": "finance-approval-threshold",
+      "query": "When is finance approval required for an expense?",
+      "top_k": 3,
+      "must_retrieve": ["Expenses above $5,000 require finance approval"]
+    },
+    {
+      "id": "who-receives-the-claim",
+      "query": "Who receives an expense claim after it is submitted?",
+      "top_k": 3,
+      "must_retrieve": ["finance team receives the expense claim"]
+    },
+    {
+      "id": "receipt-requirement",
+      "query": "Do I have to attach a receipt to my expense claim?",
+      "top_k": 3,
+      "must_retrieve": ["along with the receipt"]
+    },
+    {
+      "id": "budget-check",
+      "query": "Is the department budget checked before reimbursement?",
+      "top_k": 3,
+      "must_retrieve": ["sufficient department budget is available"]
+    },
+    {
+      "id": "after-approval",
+      "query": "What happens to an expense once it has been approved?",
+      "top_k": 3,
+      "must_retrieve": ["recorded in the accounting system"]
+    },
+    {
+      "id": "employee-notification",
+      "query": "How is the employee told about the final decision?",
+      "top_k": 3,
+      "must_retrieve": ["email notification about the final decision"]
+    },
+    {
+      "id": "two-facts-in-one-question",
+      "query": "What are the approval thresholds for expenses?",
+      "top_k": 3,
+      "must_retrieve": [
+        "Expenses above $500 require manager approval",
+        "Expenses above $5,000 require finance approval"
+      ],
+      "note": "Both thresholds have to come back together, or an answer about a large expense will name only one approver."
+    }
+  ]
+}

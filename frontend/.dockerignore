@@ -1,0 +1,19 @@
+# Installed inside the image by `npm ci`; copying the host's copy
+# would be slower and could carry platform-specific binaries.
+node_modules/
+
+# Built inside the image.
+dist/
+
+# Local environment overrides may hold values meant for this machine.
+.env
+.env.*
+!.env.example
+
+*.tsbuildinfo
+.vite/
+
+.git/
+.gitignore
+Dockerfile
+.dockerignore

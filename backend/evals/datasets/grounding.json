@@ -1,0 +1,67 @@
+{
+  "suite": "grounding",
+  "description": "Answer quality for a context supplied by the case, so a failure is the model's and not the retriever's. Refusal cases give a context that cannot answer the question: the model must say so instead of filling the gap.",
+  "cases": [
+    {
+      "id": "manager-approval-for-750",
+      "question": "I spent $750 on a client dinner. Does this need approval?",
+      "context": "7. Expenses above $500 require manager approval.\n8. Expenses above $5,000 require finance approval.",
+      "must_include": ["manager"],
+      "must_not_include": ["director", "vice president", "ceo"]
+    },
+    {
+      "id": "both-approvers-for-8000",
+      "question": "Who has to approve an $8,000 expense?",
+      "context": "7. Expenses above $500 require manager approval.\n8. Expenses above $5,000 require finance approval.",
+      "must_include": ["manager", "finance"],
+      "must_not_include": ["director", "vice president"]
+    },
+    {
+      "id": "below-threshold-needs-no-approval",
+      "question": "Do I need approval for a $120 taxi fare?",
+      "context": "7. Expenses above $500 require manager approval.\n8. Expenses above $5,000 require finance approval.",
+      "must_not_include": [
+        "requires manager approval",
+        "needs manager approval",
+        "requires approval"
+      ],
+      "note": "Below both thresholds: the answer must not invent an approval requirement, and must not refuse either, since the context settles it."
+    },
+    {
+      "id": "receipt-requirement",
+      "question": "What does an employee submit with an expense claim?",
+      "context": "1. Employee submits an expense claim along with the receipt.\n2. The finance team receives the expense claim.\n3. Finance checks whether the receipt is valid and contains the required information.",
+      "must_include": ["receipt"],
+      "must_not_include": ["invoice number", "purchase order"]
+    },
+    {
+      "id": "notification-channel",
+      "question": "How does the employee learn the final decision?",
+      "context": "9. Approved expenses are recorded in the accounting system.\n10. The employee receives an email notification about the final decision.",
+      "must_include": ["email"],
+      "must_not_include": ["sms", "phone call", "slack"]
+    },
+    {
+      "id": "threshold-missing-from-context",
+      "question": "What is the approval threshold for expenses?",
+      "context": "1. Employee submits an expense claim along with the receipt.\n2. The finance team receives the expense claim.\n3. Finance checks whether the receipt is valid and contains the required information.",
+      "expect_refusal": true,
+      "must_not_include": ["$500", "$5,000"],
+      "note": "The thresholds are real, but not in this context: reciting them would be the model answering from memory."
+    },
+    {
+      "id": "per-diem-not-in-the-policy",
+      "question": "What is the daily per diem allowance for travel?",
+      "context": "7. Expenses above $500 require manager approval.\n8. Expenses above $5,000 require finance approval.\n9. Approved expenses are recorded in the accounting system.",
+      "expect_refusal": true,
+      "must_not_include": ["per diem is", "allowance is"]
+    },
+    {
+      "id": "deadline-not-in-the-policy",
+      "question": "How many days do I have to submit an expense claim?",
+      "context": "1. Employee submits an expense claim along with the receipt.\n7. Expenses above $500 require manager approval.",
+      "expect_refusal": true,
+      "must_not_include": ["30 days", "60 days", "90 days"]
+    }
+  ]
+}

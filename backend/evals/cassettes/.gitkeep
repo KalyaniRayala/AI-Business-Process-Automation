@@ -1,0 +1,2 @@
+# Recorded Cohere responses land here:
+#   python -m app.evals run --live --record

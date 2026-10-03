@@ -3,3 +3,9 @@
 __pycache__/
 *.pyc
 chroma_db/
+.pytest_cache/
+
+# Frontend
+node_modules/
+frontend/dist/
+*.tsbuildinfo

@@ -1,0 +1,9 @@
+-r requirements.txt
+
+# Testing
+pytest==9.1.1
+
+# Reading docker-compose.yml in the container configuration tests
+# (already present as a transitive dependency; pinned here because
+# the tests import it directly).
+pyyaml==6.0.3

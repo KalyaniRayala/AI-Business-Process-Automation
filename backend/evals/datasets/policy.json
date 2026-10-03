@@ -1,0 +1,95 @@
+{
+  "suite": "policy",
+  "description": "The authoritative approval rules: above $500 needs a manager, above $5,000 also needs finance. Both thresholds are exclusive, so an amount exactly on one stays in the lower band.",
+  "cases": [
+    {
+      "id": "zero",
+      "amount": 0,
+      "expected_success": true,
+      "expected_approval": "No approval required.",
+      "expected_approvers": [],
+      "expected_approval_required": false
+    },
+    {
+      "id": "small-claim",
+      "amount": 49.5,
+      "expected_success": true,
+      "expected_approval": "No approval required.",
+      "expected_approvers": [],
+      "expected_approval_required": false
+    },
+    {
+      "id": "just-below-manager-threshold",
+      "amount": 499.99,
+      "expected_success": true,
+      "expected_approval": "No approval required.",
+      "expected_approvers": [],
+      "expected_approval_required": false
+    },
+    {
+      "id": "exactly-manager-threshold",
+      "amount": 500,
+      "expected_success": true,
+      "expected_approval": "No approval required.",
+      "expected_approvers": [],
+      "expected_approval_required": false
+    },
+    {
+      "id": "just-above-manager-threshold",
+      "amount": 500.01,
+      "expected_success": true,
+      "expected_approval": "Manager approval required.",
+      "expected_approvers": ["manager"],
+      "expected_approval_required": true
+    },
+    {
+      "id": "mid-band",
+      "amount": 750,
+      "expected_success": true,
+      "expected_approval": "Manager approval required.",
+      "expected_approvers": ["manager"],
+      "expected_approval_required": true
+    },
+    {
+      "id": "exactly-finance-threshold",
+      "amount": 5000,
+      "expected_success": true,
+      "expected_approval": "Manager approval required.",
+      "expected_approvers": ["manager"],
+      "expected_approval_required": true
+    },
+    {
+      "id": "just-above-finance-threshold",
+      "amount": 5000.01,
+      "expected_success": true,
+      "expected_approval": "Manager approval and finance approval required.",
+      "expected_approvers": ["manager", "finance"],
+      "expected_approval_required": true
+    },
+    {
+      "id": "large-claim",
+      "amount": 25000,
+      "expected_success": true,
+      "expected_approval": "Manager approval and finance approval required.",
+      "expected_approvers": ["manager", "finance"],
+      "expected_approval_required": true
+    },
+    {
+      "id": "negative-amount",
+      "amount": -1,
+      "expected_success": false,
+      "expected_approval": null,
+      "expected_approvers": [],
+      "expected_approval_required": false,
+      "note": "A rejected amount must not be read as 'no approval needed'."
+    },
+    {
+      "id": "small-negative-amount",
+      "amount": -0.01,
+      "expected_success": false,
+      "expected_approval": null,
+      "expected_approvers": [],
+      "expected_approval_required": false
+    }
+  ]
+}

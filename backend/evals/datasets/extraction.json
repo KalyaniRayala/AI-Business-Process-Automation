@@ -1,0 +1,79 @@
+{
+  "suite": "extraction",
+  "description": "Employee id and expense amount parsed out of a free-text question. Cases marked known_gap record parsing the code gets wrong today; they are reported but do not fail the gate.",
+  "cases": [
+    {
+      "id": "id-and-amount",
+      "question": "Can E101 claim 750 for a client dinner?",
+      "expected_employee_id": "E101",
+      "expected_amount": 750
+    },
+    {
+      "id": "lowercase-id-and-formatted-amount",
+      "question": "Employee e102 spent $1,250.50 on flights.",
+      "expected_employee_id": "E102",
+      "expected_amount": 1250.5
+    },
+    {
+      "id": "threshold-amount",
+      "question": "Is approval needed for a $500 expense by E103?",
+      "expected_employee_id": "E103",
+      "expected_amount": 500
+    },
+    {
+      "id": "just-above-the-upper-threshold",
+      "question": "Reimburse 5,000.01 for E101.",
+      "expected_employee_id": "E101",
+      "expected_amount": 5000.01
+    },
+    {
+      "id": "decimal-amount",
+      "question": "E102 spent 99.99 on office supplies?",
+      "expected_employee_id": "E102",
+      "expected_amount": 99.99
+    },
+    {
+      "id": "no-amount",
+      "question": "Does E104 need approval for travel?",
+      "expected_employee_id": "E104",
+      "expected_amount": null
+    },
+    {
+      "id": "neither-present",
+      "question": "What is the expense reimbursement policy?",
+      "expected_employee_id": null,
+      "expected_amount": null
+    },
+    {
+      "id": "first-of-two-employees",
+      "question": "Claim 1200 for employee E101, countersigned by E104.",
+      "expected_employee_id": "E101",
+      "expected_amount": 1200,
+      "note": "The first id wins; the workflow only looks up the claimant."
+    },
+    {
+      "id": "year-before-amount",
+      "question": "E101 submitted a claim from 2024 for 300 dollars.",
+      "expected_employee_id": "E101",
+      "expected_amount": 300,
+      "known_gap": true,
+      "note": "Any bare number is taken as the amount, so the year wins and the wrong approval rule is applied."
+    },
+    {
+      "id": "amount-in-words",
+      "question": "E101 needs approval for an expense of five hundred dollars.",
+      "expected_employee_id": "E101",
+      "expected_amount": 500,
+      "known_gap": true,
+      "note": "Spelled-out amounts are not parsed; the workflow routes to recovery instead of applying the policy."
+    },
+    {
+      "id": "zero-amount",
+      "question": "E103 wants to claim 0 for a free event.",
+      "expected_employee_id": "E103",
+      "expected_amount": 0,
+      "known_gap": true,
+      "note": "Only amounts above zero are accepted, so a zero claim looks like a missing amount."
+    }
+  ]
+}

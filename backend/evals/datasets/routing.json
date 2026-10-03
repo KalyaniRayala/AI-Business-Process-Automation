@@ -1,0 +1,105 @@
+{
+  "suite": "routing",
+  "description": "Where the workflow goes next. 'results' cases score check_results (recovery or on to approval); 'approval_router' cases score the path taken once a decision exists.",
+  "cases": [
+    {
+      "id": "everything-found",
+      "check": "results",
+      "state": {
+        "employee_data": {"success": true, "employee": {"employee_id": "E101"}},
+        "policy_result": {"success": true, "expense_amount": 750, "approval": "Manager approval required."},
+        "document_context": "Expenses above $500 require manager approval."
+      },
+      "expected_route": "approval"
+    },
+    {
+      "id": "unknown-employee",
+      "check": "results",
+      "state": {
+        "employee_data": {"success": false, "error": "Employee E999 was not found."},
+        "policy_result": {"success": true, "expense_amount": 750, "approval": "Manager approval required."},
+        "document_context": "Expenses above $500 require manager approval."
+      },
+      "expected_route": "recovery"
+    },
+    {
+      "id": "no-amount-in-question",
+      "check": "results",
+      "state": {
+        "employee_data": {"success": true, "employee": {"employee_id": "E101"}},
+        "policy_result": {"success": false, "error": "Expense amount not found."},
+        "document_context": "Expenses above $500 require manager approval."
+      },
+      "expected_route": "recovery"
+    },
+    {
+      "id": "retrieval-found-nothing",
+      "check": "results",
+      "state": {
+        "employee_data": {"success": true, "employee": {"employee_id": "E101"}},
+        "policy_result": {"success": true, "expense_amount": 750, "approval": "Manager approval required."},
+        "document_context": ""
+      },
+      "expected_route": "recovery"
+    },
+    {
+      "id": "nothing-ran",
+      "check": "results",
+      "state": {},
+      "expected_route": "recovery"
+    },
+    {
+      "id": "everything-failed",
+      "check": "results",
+      "state": {
+        "employee_data": {"success": false, "error": "Employee ID not found."},
+        "policy_result": {"success": false, "error": "Expense amount not found."},
+        "document_context": ""
+      },
+      "expected_route": "recovery"
+    },
+    {
+      "id": "malformed-employee-result",
+      "check": "results",
+      "state": {
+        "employee_data": null,
+        "policy_result": {"success": true, "expense_amount": 750, "approval": "Manager approval required."},
+        "document_context": "Expenses above $500 require manager approval."
+      },
+      "expected_route": "recovery",
+      "known_gap": true,
+      "note": "A tool result that is not a dict is not treated as a failure, so a malformed lookup goes forward to approval instead of recovery."
+    },
+    {
+      "id": "approved",
+      "check": "approval_router",
+      "state": {"approval_status": "approved"},
+      "expected_route": "action"
+    },
+    {
+      "id": "rejected",
+      "check": "approval_router",
+      "state": {"approval_status": "rejected"},
+      "expected_route": "rejection"
+    },
+    {
+      "id": "approval-not-required",
+      "check": "approval_router",
+      "state": {"approval_status": "not_required"},
+      "expected_route": "action"
+    },
+    {
+      "id": "no-decision-recorded",
+      "check": "approval_router",
+      "state": {},
+      "expected_route": "final",
+      "note": "Without a decision the workflow must answer, never pay out."
+    },
+    {
+      "id": "unrecognised-decision",
+      "check": "approval_router",
+      "state": {"approval_status": "maybe"},
+      "expected_route": "final"
+    }
+  ]
+}

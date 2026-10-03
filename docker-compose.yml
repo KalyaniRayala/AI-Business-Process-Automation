@@ -1,0 +1,100 @@
+# The whole platform: PostgreSQL, the API, and the dashboard.
+#
+#   cp .env.docker.example .env     # then fill in the two secrets
+#   docker compose up --build
+#
+# Open http://localhost:8080. The dashboard calls /api on its own
+# origin and nginx forwards that to the backend, so nothing but the
+# dashboard port needs to be published.
+#
+# Secrets come from the environment and are never written here.
+# `${VAR:?message}` makes compose refuse to start with a clear error
+# rather than falling back to a default password.
+
+name: bpa
+
+services:
+
+  # ------------------------------------------------------------
+  # DATABASE
+  # ------------------------------------------------------------
+
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bpa_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-bpa}
+
+    volumes:
+      # postgres:18+ stores data in a major-version subdirectory and
+      # refuses to start if the volume is mounted at the old
+      # /var/lib/postgresql/data path. Mount the parent instead.
+      - pgdata:/var/lib/postgresql
+
+    # Not published: only the backend needs it. Uncomment to attach
+    # psql or a GUI from the host.
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bpa_app} -d ${POSTGRES_DB:-bpa}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ------------------------------------------------------------
+  # API
+  # ------------------------------------------------------------
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+
+    environment:
+      # Assembled here so the password exists in one place only.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bpa_app}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-bpa}
+      COHERE_API_KEY: ${COHERE_API_KEY:?set COHERE_API_KEY in .env}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+
+    volumes:
+      # The vector store is state, not image content: it survives a
+      # rebuild and is not baked into the layers.
+      - chroma:/var/lib/bpa/chroma_db
+
+    # Published on the loopback interface for curl, the OpenAPI docs
+    # and a Prometheus scrape. The dashboard does not use this port.
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ------------------------------------------------------------
+  # DASHBOARD
+  # ------------------------------------------------------------
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Same origin as the page; nginx proxies it to the backend.
+        VITE_API_BASE_URL: /api
+    restart: unless-stopped
+
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  chroma:
